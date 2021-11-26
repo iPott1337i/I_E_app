@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:money_tracker/models/moneyModel.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -25,7 +26,7 @@ class DBHelper {
 
   Future _onCreate(Database db, int version) async {
     await db.execute('''
-      CREATE TABLE experiments(
+      CREATE TABLE bank(
         id INTEGER PRIMARY KEY,
         type INTEGER,
         amount DOUBLE,
@@ -33,5 +34,27 @@ class DBHelper {
         tag TEXT
       );
     ''');
+  }
+
+  Future saveMoney(Money money) async {
+    Database db = await instance.database;
+    await db.transaction((txn) async {
+      txn.insert('bank', money.toMap());
+    });
+  }
+
+  Future<List<Money>> getMoney() async {
+    Database db = await instance.database;
+    List<Map> list = await db.rawQuery('SELECT * FROM bank ORDER BY id ASC');
+    List<Money> moneys = [];
+    list.forEach((element) {
+      moneys.add(new Money(
+          id: element['id'],
+          type: element['type'],
+          amount: element['amount'],
+          date: element['date'],
+          tag: element['tag']));
+    });
+    return moneys;
   }
 }
