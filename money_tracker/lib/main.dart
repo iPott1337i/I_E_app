@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:money_tracker/models/moneyModel.dart';
 import 'package:money_tracker/utils/database.dart';
 
+import 'addMoney.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -17,13 +19,13 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: Home(),
+      home: const Home(),
     );
   }
 }
 
 class Home extends StatefulWidget {
-  Home({Key? key}) : super(key: key);
+  const Home({Key? key}) : super(key: key);
 
   @override
   _HomeState createState() => _HomeState();
@@ -41,6 +43,14 @@ class _HomeState extends State<Home> {
           shrinkWrap: true,
           children: [
             _projectWidget(),
+            FloatingActionButton(
+                child: const Text('+'),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => AddMoney()),
+                  );
+                }),
           ],
         ),
       ),
