@@ -21,6 +21,8 @@ class _AddMoneyState extends State<AddMoney> {
   String value = 'test';
   DateTime selectedDate = DateTime.now();
   String date = '';
+  bool e_i = false; //false = expense, true = income
+  String currency = 'EUR';
 
   //Tag-Options (Soon: more languages supported)
   List<S2Choice<String>> tags = [
@@ -66,6 +68,40 @@ class _AddMoneyState extends State<AddMoney> {
               },
               child: const Text('<'),
             ),
+            //Expense or Income option
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                const Text(
+                  'Expense',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 17,
+                    color: Color.fromARGB(255, 244, 67, 54),
+                  ),
+                ),
+                Switch(
+                  activeColor: Colors.green,
+                  inactiveThumbColor: Colors.red,
+                  inactiveTrackColor: const Color.fromARGB(132, 244, 67, 54),
+                  value: e_i,
+                  onChanged: (bool value) {
+                    setState(() {
+                      e_i = value;
+                    });
+                  },
+                ),
+                const Text(
+                  'Income',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 17,
+                    color: Colors.green,
+                  ),
+                ),
+              ],
+            ),
+
             //Input field for money amount
             TextField(
               keyboardType: const TextInputType.numberWithOptions(
@@ -79,6 +115,21 @@ class _AddMoneyState extends State<AddMoney> {
               decoration: const InputDecoration(
                 hintText: 'Wert eingeben',
               ),
+            ),
+            //Currency
+            DropdownButton(
+              value: currency,
+              items: <String>['EUR', 'USD', 'CRC'].map((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+              onChanged: (String? newValue) {
+                setState(() {
+                  currency = newValue!;
+                });
+              },
             ),
             //tag selection
             SmartSelect<String>.single(

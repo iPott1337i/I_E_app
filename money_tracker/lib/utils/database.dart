@@ -28,7 +28,7 @@ class DBHelper {
     await db.execute('''
       CREATE TABLE bank(
         id INTEGER PRIMARY KEY,
-        type INTEGER,
+        type NUMBER(1),
         amount DOUBLE,
         date DATE,
         tag TEXT
@@ -47,14 +47,17 @@ class DBHelper {
     Database db = await instance.database;
     List<Map> list = await db.rawQuery('SELECT * FROM bank ORDER BY id ASC');
     List<Money> moneys = [];
-    list.forEach((element) {
-      moneys.add(new Money(
+    for (var element in list) {
+      moneys.add(
+        Money(
           id: element['id'],
           type: element['type'],
           amount: element['amount'],
           date: element['date'],
-          tag: element['tag']));
-    });
+          tag: element['tag'],
+        ),
+      );
+    }
     return moneys;
   }
 }
