@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:smart_select/smart_select.dart';
 import 'package:pattern_formatter/pattern_formatter.dart';
-import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
+import 'dart:math' as math;
 
 class AddMoney extends StatefulWidget {
   AddMoney({Key? key}) : super(key: key);
@@ -51,13 +51,8 @@ class _AddMoneyState extends State<AddMoney> {
               ),
               controller: amountController,
               inputFormatters: [
-                // CurrencyTextInputFormatter(),
-                ThousandsSeparatorInputFormatter(),
-                // NumberInputFormatter.currency()
-                // ThousandsFormatter(allowFraction: false),
-                // FilteringTextInputFormatter.allow(
-                // RegExp(r'^\d*\.?\d{0,2}'),
-                // ),
+                DecimalTextInputFormatter(decimalRange: 2),
+                ThousandsFormatter(allowFraction: true),
               ],
               decoration: const InputDecoration(
                 hintText: 'Wert eingeben',
@@ -76,48 +71,41 @@ class _AddMoneyState extends State<AddMoney> {
   }
 }
 
-class ThousandsSeparatorInputFormatter extends TextInputFormatter {
-  static const separator = ','; // Change this to '.' for other locales
+//code to only allow 2 digits after a '.'
+class DecimalTextInputFormatter extends TextInputFormatter {
+  DecimalTextInputFormatter({required this.decimalRange})
+      : assert(decimalRange > 0);
+
+  final int decimalRange;
 
   @override
   TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue, TextEditingValue newValue) {
-    // Short-circuit if the new value is empty
-    if (newValue.text.length == 0) {
-      return newValue.copyWith(text: '');
-    }
+    TextEditingValue oldValue, // unused.
+    TextEditingValue newValue,
+  ) {
+    TextSelection newSelection = newValue.selection;
+    String truncated = newValue.text;
 
-    // Handle "deletion" of separator character
-    String oldValueText = oldValue.text.replaceAll(separator, '');
-    String newValueText = newValue.text.replaceAll(separator, '');
+    String value = newValue.text;
 
-    if (oldValue.text.endsWith(separator) &&
-        oldValue.text.length == newValue.text.length + 1) {
-      newValueText = newValueText.substring(0, newValueText.length - 1);
-    }
+    if (value.contains(".") &&
+        value.substring(value.indexOf(".") + 1).length > decimalRange) {
+      truncated = oldValue.text;
+      newSelection = oldValue.selection;
+    } else if (value == ".") {
+      truncated = "0.";
 
-    // Only process if the old value and new value are different
-    if (oldValueText != newValueText) {
-      int selectionIndex =
-          newValue.text.length - newValue.selection.extentOffset;
-      final chars = newValueText.split('');
-
-      String newString = '';
-      for (int i = chars.length - 1; i >= 0; i--) {
-        if ((chars.length - 1 - i) % 3 == 0 && i != chars.length - 1)
-          newString = separator + newString;
-        newString = chars[i] + newString;
-      }
-
-      return TextEditingValue(
-        text: newString.toString(),
-        selection: TextSelection.collapsed(
-          offset: newString.length - selectionIndex,
-        ),
+      newSelection = newValue.selection.copyWith(
+        baseOffset: math.min(truncated.length, truncated.length + 1),
+        extentOffset: math.min(truncated.length, truncated.length + 1),
       );
     }
 
-    // If the new value and old value are the same, just return as-is
+    return TextEditingValue(
+      text: truncated,
+      selection: newSelection,
+      composing: TextRange.empty,
+    );
     return newValue;
   }
 }
