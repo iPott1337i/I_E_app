@@ -1,7 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:smart_select/smart_select.dart';
 import 'package:pattern_formatter/pattern_formatter.dart';
+import 'package:intl/intl.dart';
 import 'dart:math' as math;
 
 class AddMoney extends StatefulWidget {
@@ -14,7 +16,11 @@ class AddMoney extends StatefulWidget {
 class _AddMoneyState extends State<AddMoney> {
   //Controller for Inputs
   final amountController = TextEditingController();
+
+  //Variables for later use
   String value = 'test';
+  DateTime selectedDate = DateTime.now();
+  String date = '';
 
   //Tag-Options (Soon: more languages supported)
   List<S2Choice<String>> tags = [
@@ -32,6 +38,20 @@ class _AddMoneyState extends State<AddMoney> {
   ];
 
   @override
+  void initState() {
+    // TODO: implement initState
+    _updateDateText(selectedDate);
+    super.initState();
+  }
+
+  _updateDateText(DateTime newDate) {
+    setState(() {
+      selectedDate = newDate;
+      date = DateFormat('dd-MM-yyyy').format(selectedDate);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -39,12 +59,14 @@ class _AddMoneyState extends State<AddMoney> {
         body: ListView(
           shrinkWrap: true,
           children: [
+            //Button to go back
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
               },
               child: const Text('<'),
             ),
+            //Input field for money amount
             TextField(
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
@@ -58,16 +80,35 @@ class _AddMoneyState extends State<AddMoney> {
                 hintText: 'Wert eingeben',
               ),
             ),
+            //tag selection
             SmartSelect<String>.single(
               title: 'Tags',
               value: value,
               choiceItems: tags,
               onChange: (state) => setState(() => value = state.value),
             ),
+            //Date picker
+            // SfDateRangePicker(),
+            ElevatedButton(
+              onPressed: () => _selectDate(context),
+              child: Text('$date'),
+            ),
           ],
         ),
       ),
     );
+  }
+
+  _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate, // Refer step 1
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2025),
+    );
+    if (picked != null && picked != selectedDate) {
+      _updateDateText(picked);
+    }
   }
 }
 
