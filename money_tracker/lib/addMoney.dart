@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:money_tracker/utils/colors.dart';
 import 'package:smart_select/smart_select.dart';
 import 'package:pattern_formatter/pattern_formatter.dart';
 import 'package:intl/intl.dart';
@@ -41,7 +42,6 @@ class _AddMoneyState extends State<AddMoney> {
 
   @override
   void initState() {
-    // TODO: implement initState
     _updateDateText(selectedDate);
     super.initState();
   }
@@ -57,94 +57,144 @@ class _AddMoneyState extends State<AddMoney> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
-      child: Scaffold(
-        body: ListView(
-          shrinkWrap: true,
-          children: [
-            //Button to go back
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('<'),
-            ),
-            //Expense or Income option
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                const Text(
-                  'Expense',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 17,
-                    color: Color.fromARGB(255, 244, 67, 54),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Palette.darkTurquoise,
+              Palette.languidLavender,
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
+            body: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  //Button to go back
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text('<'),
                   ),
-                ),
-                Switch(
-                  activeColor: Colors.green,
-                  inactiveThumbColor: Colors.red,
-                  inactiveTrackColor: const Color.fromARGB(132, 244, 67, 54),
-                  value: e_i,
-                  onChanged: (bool value) {
-                    setState(() {
-                      e_i = value;
-                    });
-                  },
-                ),
-                const Text(
-                  'Income',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 17,
-                    color: Colors.green,
-                  ),
-                ),
-              ],
-            ),
+                  Card(
+                    // decoration: BoxDecoration(gradient: ),
+                    elevation: 7,
+                    color: e_i
+                        ? Palette.yellowGreenCrayola
+                        : Palette.lightFieryRose,
+                    shape: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(7),
+                      borderSide: BorderSide(
+                        color: !e_i
+                            ? Palette.fieryRose
+                            : Palette.yellowGreenCrayola,
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: ListView(
+                        shrinkWrap: true,
+                        children: [
+                          //Expense or Income option
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Text(
+                                'Expense',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 17,
+                                  color: Palette.fieryRose,
+                                ),
+                              ),
+                              Switch(
+                                activeColor: Palette.yellowGreenCrayola,
+                                inactiveThumbColor: Palette.fieryRose,
+                                inactiveTrackColor: Palette.fieryRose,
+                                value: e_i,
+                                onChanged: (bool value) {
+                                  setState(() {
+                                    e_i = value;
+                                  });
+                                },
+                              ),
+                              Text(
+                                'Income',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 17,
+                                  color: Palette.yellowGreenCrayola,
+                                ),
+                              ),
+                            ],
+                          ),
 
-            //Input field for money amount
-            TextField(
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
+                          //Input field for money amount
+                          TextField(
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
+                            controller: amountController,
+                            inputFormatters: [
+                              DecimalTextInputFormatter(decimalRange: 2),
+                              ThousandsFormatter(allowFraction: true),
+                            ],
+                            decoration: const InputDecoration(
+                              hintText: 'Wert eingeben',
+                            ),
+                          ),
+                          //Currency
+                          DropdownButton(
+                            dropdownColor: Palette.darkTurquoise,
+                            value: currency,
+                            items: <String>['EUR', 'USD', 'CRC']
+                                .map((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                currency = newValue!;
+                              });
+                            },
+                          ),
+                          //tag selection
+                          SmartSelect<String>.single(
+                            title: 'Tags',
+                            modalStyle: S2ModalStyle(
+                              backgroundColor: Palette.languidLavender,
+                            ),
+                            modalHeaderStyle: S2ModalHeaderStyle(
+                              backgroundColor: Palette.languidLavender,
+                            ),
+                            value: value,
+                            choiceItems: tags,
+                            onChange: (state) =>
+                                setState(() => value = state.value),
+                          ),
+                          //Date picker
+                          // SfDateRangePicker(),
+                          ElevatedButton(
+                            onPressed: () => _selectDate(context),
+                            child: Text('$date'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              controller: amountController,
-              inputFormatters: [
-                DecimalTextInputFormatter(decimalRange: 2),
-                ThousandsFormatter(allowFraction: true),
-              ],
-              decoration: const InputDecoration(
-                hintText: 'Wert eingeben',
-              ),
             ),
-            //Currency
-            DropdownButton(
-              value: currency,
-              items: <String>['EUR', 'USD', 'CRC'].map((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              onChanged: (String? newValue) {
-                setState(() {
-                  currency = newValue!;
-                });
-              },
-            ),
-            //tag selection
-            SmartSelect<String>.single(
-              title: 'Tags',
-              value: value,
-              choiceItems: tags,
-              onChange: (state) => setState(() => value = state.value),
-            ),
-            //Date picker
-            // SfDateRangePicker(),
-            ElevatedButton(
-              onPressed: () => _selectDate(context),
-              child: Text('$date'),
-            ),
-          ],
+          ),
         ),
       ),
     );

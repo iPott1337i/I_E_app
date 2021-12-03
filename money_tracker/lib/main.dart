@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:money_tracker/models/moneyModel.dart';
+import 'package:money_tracker/utils/colors.dart';
 import 'package:money_tracker/utils/database.dart';
+import 'package:money_tracker/utils/themedata.dart';
 
 import 'addMoney.dart';
 
@@ -17,7 +19,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
+        backgroundColor: Palette.darkTurquoise,
         primarySwatch: Colors.blue,
+        textTheme: tTheme,
       ),
       home: const Home(),
     );
@@ -39,19 +43,31 @@ class _HomeState extends State<Home> {
     return Scaffold(
       body: SizedBox(
         height: MediaQuery.of(context).size.height,
-        child: ListView(
-          shrinkWrap: true,
-          children: [
-            _projectWidget(),
-            FloatingActionButton(
-                child: const Text('+'),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => AddMoney()),
-                  );
-                }),
-          ],
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Palette.darkTurquoise,
+                Palette.languidLavender,
+              ],
+            ),
+          ),
+          child: ListView(
+            shrinkWrap: true,
+            children: [
+              _projectWidget(),
+              FloatingActionButton(
+                  child: const Text('+'),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => AddMoney()),
+                    );
+                  }),
+            ],
+          ),
         ),
       ),
     );
