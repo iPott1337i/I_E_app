@@ -19,6 +19,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
+        scaffoldBackgroundColor: Palette.darkTurquoise,
         backgroundColor: Palette.darkTurquoise,
         primarySwatch: Colors.blue,
         textTheme: tTheme,
@@ -40,34 +41,40 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SizedBox(
-        height: MediaQuery.of(context).size.height,
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Palette.darkTurquoise,
-                Palette.languidLavender,
-              ],
+    return Container(
+      decoration: BoxDecoration(
+        color: Palette.darkTurquoise,
+      ),
+      child: Scaffold(
+        body: Column(
+          children: [
+            const SizedBox(
+              height: 150,
             ),
-          ),
-          child: ListView(
-            shrinkWrap: true,
-            children: [
-              _projectWidget(),
-              FloatingActionButton(
-                  child: const Text('+'),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => AddMoney()),
-                    );
-                  }),
-            ],
-          ),
+            SizedBox(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height - 180,
+              child: Card(
+                elevation: 7,
+                color: Palette.whiteGray,
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    _projectWidget(),
+                    FloatingActionButton(
+                      child: const Text('+'),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => AddMoney()),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

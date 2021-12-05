@@ -14,4 +14,5 @@ class Palette {
   static Color fieryRose = const Color(0xFFEF626C);
 
   static Color lightFieryRose = const Color(0x9FEF626C);
+  static Color whiteGray = const Color(0xFFF5F5F5);
 }
