@@ -9,20 +9,27 @@ class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
   CustomAppBar(
     this.title, {
     Key? key,
-  })  : preferredSize = const Size.fromHeight(50.0),
+  })  : preferredSize = const Size.fromHeight(75.0),
         super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      elevation: null,
+      elevation: 0,
       shadowColor: null,
       title: Text(
         title,
         style: const TextStyle(color: Colors.black),
       ),
-      backgroundColor: Colors.white,
-      automaticallyImplyLeading: true,
+      backgroundColor: Colors.transparent,
+      //automaticallyImplyLeading: true,
+      leading: IconButton(
+        onPressed: () => {Navigator.pop(context)},
+        icon: const Icon(
+          Icons.arrow_back_ios,
+          color: Colors.black,
+        ),
+      ),
       titleSpacing: 0,
     );
   }
