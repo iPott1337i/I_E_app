@@ -51,16 +51,15 @@ class _HomeState extends State<Home> {
             const SizedBox(
               height: 150,
             ),
-            SizedBox(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height - 180,
+            Expanded(
               child: Card(
                 elevation: 7,
                 color: Palette.whiteGray,
-                child: ListView(
-                  shrinkWrap: true,
+                child: Column(
                   children: [
-                    _projectWidget(),
+                    Expanded(
+                      child: _projectWidget(),
+                    ),
                     FloatingActionButton(
                       child: const Text('+'),
                       onPressed: () {

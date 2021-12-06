@@ -30,7 +30,7 @@ class DBHelper {
         id INTEGER PRIMARY KEY,
         type NUMBER(1),
         amount DOUBLE,
-        date DATE,
+        date TEXT,
         tag TEXT
       );
     ''');

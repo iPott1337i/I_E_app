@@ -1,12 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:money_tracker/models/moneyModel.dart';
 import 'package:money_tracker/utils/colors.dart';
 import 'package:money_tracker/utils/customAppBar.dart';
+import 'package:money_tracker/utils/database.dart';
 import 'package:smart_select/smart_select.dart';
 import 'package:pattern_formatter/pattern_formatter.dart';
 import 'package:intl/intl.dart';
 import 'dart:math' as math;
+
+import 'package:sqflite/sqlite_api.dart';
 
 class AddMoney extends StatefulWidget {
   AddMoney({Key? key}) : super(key: key);
@@ -20,7 +24,7 @@ class _AddMoneyState extends State<AddMoney> {
   final amountController = TextEditingController();
 
   //Variables for later use
-  String value = 'test';
+  String tag = 'test'; // tag
   DateTime selectedDate = DateTime.now();
   String date = '';
   bool e_i = false; //false = expense, true = income
@@ -73,20 +77,10 @@ class _AddMoneyState extends State<AddMoney> {
           appBar: CustomAppBar("Add"),
           backgroundColor: Colors.transparent,
           body: Column(
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  //Button to go back
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text('<'),
-                  ),
-                  _addMoney(),
-                ],
-              ),
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              _addMoney(),
+              const Spacer(),
             ],
           ),
         ),
@@ -195,20 +189,54 @@ class _AddMoneyState extends State<AddMoney> {
               modalHeaderStyle: S2ModalHeaderStyle(
                 backgroundColor: Palette.languidLavender,
               ),
-              value: value,
+              value: tag,
               choiceItems: tags,
-              onChange: (state) => setState(() => value = state.value),
+              onChange: (state) => setState(() => tag = state.value),
             ),
             //Date picker
             // SfDateRangePicker(),
             ElevatedButton(
               onPressed: () => _selectDate(context),
-              child: Text('$date'),
+              child: Text(date),
+            ),
+            ElevatedButton(
+              onPressed: _validate() ? _submitForm : null,
+              child: const Icon(Icons.check),
             ),
           ],
         ),
       ),
     );
+  }
+
+  void _submitForm() {
+    Money money = Money(
+      type: e_i ? 1 : 0,
+      amount: double.parse(
+        amountController.text,
+      ),
+      date: selectedDate.toString(),
+      tag: tag,
+    );
+    DBHelper.instance.saveMoney(money);
+
+    //setting back the default values
+    setState(() {
+      amountController.clear();
+      _updateDateText(DateTime.now()); //?
+      tag = 'test';
+      currency = 'EUR';
+      e_i = false;
+    });
+    Navigator.pop(context);
+  }
+
+  _validate<bool>() {
+    if (amountController.text == "" || tag == 'test') {
+      return false;
+    } else {
+      return true;
+    }
   }
 }
 
