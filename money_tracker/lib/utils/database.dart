@@ -1,9 +1,12 @@
 import 'dart:io';
 
 import 'package:money_tracker/models/moneyModel.dart';
+import 'package:money_tracker/utils/money.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class DBHelper {
   DBHelper._privateConstructor();
@@ -25,6 +28,7 @@ class DBHelper {
   }
 
   Future _onCreate(Database db, int version) async {
+    //table for all the expenses and income
     await db.execute('''
       CREATE TABLE bank(
         id INTEGER PRIMARY KEY,
@@ -34,6 +38,46 @@ class DBHelper {
         tag TEXT
       );
     ''');
+
+    //db 'exc' (exchange currency values based on 'EUR' will be stored in here)
+    await db.execute('''
+      CREATE TABLE exc(
+        id INTEGER PRIMARY KEY,
+        json TEXT
+      );
+    ''');
+    //get first exc (hope for internet connectivity lol)
+    Map firstExc = await getCurrentExcFromApi();
+    db.rawInsert('''
+      INSERT INTO exc (id, json)
+      VALUES (null, ?);
+    ''', [json.encode(firstExc)]);
+  }
+
+  Future getFirstExc() async {
+    Database db = await instance.database;
+    Map firstExc = await getCurrentExcFromApi();
+    db.rawInsert('''
+      INSERT INTO exc (id, json)
+      VALUES (null, ?);
+    ''', [json.encode(firstExc)]);
+  }
+
+  Future getCurrentExc() async {
+    Database db = await instance.database;
+    var result = await db.rawQuery('SELECT * FROM exc LIMIT 1');
+    var json2 = result[0]['json'];
+    return json.decode(json2.toString());
+  }
+
+  Future updateExc(Map newExc) async {
+    Database db = await instance.database;
+
+    db.rawUpdate('''
+        UPDATE exc
+        SET json = ?
+        WHERE id = 1
+      ''', [json.encode(newExc)]);
   }
 
   Future saveMoney(Money money) async {

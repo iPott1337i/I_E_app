@@ -33,6 +33,8 @@ dependencies:
   path:
   path_provider:
   smart_select: ^4.3.2
+  forex_conversion: ^0.0.3
+  http:
 
 
 

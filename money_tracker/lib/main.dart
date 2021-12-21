@@ -1,9 +1,13 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:money_tracker/models/moneyModel.dart';
 import 'package:money_tracker/utils/colors.dart';
 import 'package:money_tracker/utils/database.dart';
+import 'package:money_tracker/utils/money.dart';
 import 'package:money_tracker/utils/themedata.dart';
-
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'addMoney.dart';
 
 void main() {
@@ -18,6 +22,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         scaffoldBackgroundColor: Palette.darkTurquoise,
         backgroundColor: Palette.darkTurquoise,
@@ -38,6 +43,15 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   List<Money> moneys = [];
+  List<String> currencies = [];
+  Map currencyMap = {};
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    loadCurrencies();
+  }
 
   @override
   Widget build(BuildContext context) {
