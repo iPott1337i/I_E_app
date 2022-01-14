@@ -30,6 +30,8 @@ class _AddMoneyState extends State<AddMoney> {
   bool e_i = false; //false = expense, true = income
   String currency = 'EUR';
 
+  double finalValue = 0;
+
   //Tag-Options (Soon: more languages supported)
   List<S2Choice<String>> tags = [
     S2Choice<String>(value: 'shopping', title: 'Shopping'),
@@ -74,11 +76,24 @@ class _AddMoneyState extends State<AddMoney> {
           ),
         ),
         child: Scaffold(
-          appBar: CustomAppBar("Add"),
-          backgroundColor: Colors.transparent,
+          appBar: CustomAppBar(
+            "Add",
+            IconButton(
+              onPressed: () => {Navigator.pop(context)},
+              icon: const Icon(
+                Icons.arrow_back_ios,
+                color: Colors.black,
+              ),
+            ),
+            const SizedBox.shrink(),
+          ),
+          backgroundColor: Colors.white,
           body: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
+              const SizedBox(
+                height: 10,
+              ),
               _addMoney(),
               const Spacer(),
             ],
@@ -104,7 +119,8 @@ class _AddMoneyState extends State<AddMoney> {
     return Card(
       // decoration: BoxDecoration(gradient: ),
       elevation: 7,
-      color: e_i ? Palette.yellowGreenCrayola : Palette.lightFieryRose,
+      color: Colors.white,
+      // e_i ? Palette.yellowGreenCrayola : Palette.lightFieryRose,
       shape: OutlineInputBorder(
         borderRadius: BorderRadius.circular(7),
         borderSide: BorderSide(
@@ -166,7 +182,7 @@ class _AddMoneyState extends State<AddMoney> {
             ),
             //Currency
             DropdownButton(
-              dropdownColor: Palette.darkTurquoise,
+              dropdownColor: Colors.white,
               value: currency,
               items: <String>['EUR', 'USD', 'CRC'].map((String value) {
                 return DropdownMenuItem<String>(
@@ -177,17 +193,18 @@ class _AddMoneyState extends State<AddMoney> {
               onChanged: (String? newValue) {
                 setState(() {
                   currency = newValue!;
+                  print(currency);
                 });
               },
             ),
             //tag selection
             SmartSelect<String>.single(
               title: 'Tags',
-              modalStyle: S2ModalStyle(
-                backgroundColor: Palette.languidLavender,
+              modalStyle: const S2ModalStyle(
+                backgroundColor: Colors.white,
               ),
-              modalHeaderStyle: S2ModalHeaderStyle(
-                backgroundColor: Palette.languidLavender,
+              modalHeaderStyle: const S2ModalHeaderStyle(
+                backgroundColor: Colors.white,
               ),
               value: tag,
               choiceItems: tags,
@@ -209,25 +226,26 @@ class _AddMoneyState extends State<AddMoney> {
     );
   }
 
-  void _submitForm() {
+  void _submitForm() async {
+    //calculate the real value depending on the selected currency
+    finalValue = await _calculateCurrency();
+    print(finalValue);
     Money money = Money(
       type: e_i ? 1 : 0,
-      amount: double.parse(
-        amountController.text,
-      ),
+      amount: finalValue,
       date: selectedDate.toString(),
       tag: tag,
     );
     DBHelper.instance.saveMoney(money);
 
     //setting back the default values
-    setState(() {
-      amountController.clear();
-      _updateDateText(DateTime.now()); //?
-      tag = 'test';
-      currency = 'EUR';
-      e_i = false;
-    });
+    // setState(() {
+    //   amountController.clear();
+    //   _updateDateText(DateTime.now()); //?
+    //   tag = 'test';
+    //   currency = 'EUR';
+    //   e_i = false;
+    // });
     Navigator.pop(context);
   }
 
@@ -237,6 +255,25 @@ class _AddMoneyState extends State<AddMoney> {
     } else {
       return true;
     }
+  }
+
+  _calculateCurrency() async {
+    finalValue = double.parse(amountController.text.replaceAll(',', ''));
+    Map currencies = await DBHelper.instance.getCurrentExc();
+
+    print(currency);
+    print(currencies);
+    if (currency != 'EUR') {
+      //calculate the new value if currency isn't 'EUR' by dividing through value and round on 2 decimal places
+      double newValue = (finalValue / currencies['rates'][currency]);
+      print(newValue);
+      newValue =
+          ((newValue * math.pow(10.0, 2)).roundToDouble() / math.pow(10.0, 2));
+      // double.parse(newValue.toStringAsFixed(2));
+      print(newValue);
+      return newValue;
+    }
+    return finalValue;
   }
 }
 

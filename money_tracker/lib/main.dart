@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:money_tracker/models/moneyModel.dart';
 import 'package:money_tracker/utils/colors.dart';
+import 'package:money_tracker/utils/customAppBar.dart';
 import 'package:money_tracker/utils/database.dart';
 import 'package:money_tracker/utils/money.dart';
 import 'package:money_tracker/utils/themedata.dart';
@@ -24,8 +25,8 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        scaffoldBackgroundColor: Palette.darkTurquoise,
-        backgroundColor: Palette.darkTurquoise,
+        // scaffoldBackgroundColor: Palette.darkTurquoise,
+        // backgroundColor: Palette.darkTurquoise,
         primarySwatch: Colors.blue,
         textTheme: tTheme,
       ),
@@ -48,47 +49,56 @@ class _HomeState extends State<Home> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     loadCurrencies();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Palette.darkTurquoise,
-      ),
-      child: Scaffold(
-        body: Column(
-          children: [
-            const SizedBox(
-              height: 150,
-            ),
-            Expanded(
-              child: Card(
-                elevation: 7,
-                color: Palette.whiteGray,
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: _projectWidget(),
-                    ),
-                    FloatingActionButton(
-                      child: const Text('+'),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => AddMoney()),
-                        );
-                      },
-                    ),
-                  ],
-                ),
+    return Scaffold(
+      appBar: CustomAppBar(
+        "",
+        const SizedBox.shrink(),
+        IconButton(
+          onPressed: () => {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AddMoney(),
               ),
             ),
-          ],
+          },
+          icon: const Icon(
+            Icons.add,
+            size: 30,
+            color: Colors.black,
+          ),
         ),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: Card(
+              elevation: 0,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: _projectWidget(),
+                  ),
+                  // FloatingActionButton(
+                  //   child: const Text('+'),
+                  //   onPressed: () {
+                  //     Navigator.push(
+                  //       context,
+                  //       MaterialPageRoute(builder: (context) => AddMoney()),
+                  //     );
+                  //   },
+                  // ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
