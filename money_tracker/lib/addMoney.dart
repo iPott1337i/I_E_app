@@ -233,7 +233,7 @@ class _AddMoneyState extends State<AddMoney> {
     Money money = Money(
       type: e_i ? 1 : 0,
       amount: finalValue,
-      date: selectedDate.toString(),
+      date: DateFormat('yyyy-MM-dd').format(selectedDate),
       tag: tag,
     );
     DBHelper.instance.saveMoney(money);

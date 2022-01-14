@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:money_tracker/models/moneyModel.dart';
+import 'package:money_tracker/moneyList.dart';
 import 'package:money_tracker/utils/colors.dart';
 import 'package:money_tracker/utils/customAppBar.dart';
 import 'package:money_tracker/utils/database.dart';
@@ -46,11 +47,25 @@ class _HomeState extends State<Home> {
   List<Money> moneys = [];
   List<String> currencies = [];
   Map currencyMap = {};
-
+  String expenses = "";
+  String incomes = "";
+  String balance = "";
   @override
   void initState() {
     super.initState();
     loadCurrencies();
+    loadEI();
+  }
+
+  loadEI() async {
+    String exp = await DBHelper.instance.getExpenses();
+    String inc = await DBHelper.instance.getIncomes();
+    String bal = (double.tryParse(inc)! - double.tryParse(exp)!).toString();
+    setState(() {
+      expenses = exp;
+      incomes = inc;
+      balance = bal;
+    });
   }
 
   @override
@@ -83,7 +98,22 @@ class _HomeState extends State<Home> {
               child: Column(
                 children: [
                   Expanded(
-                    child: _projectWidget(),
+                    child: Text("$expenses | $incomes"),
+                  ),
+                  Expanded(
+                    child: Card(
+                      child: InkWell(
+                        onTap: () => {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => MoneyList(),
+                            ),
+                          ),
+                        },
+                        child: Text(balance),
+                      ),
+                    ),
                   ),
                   // FloatingActionButton(
                   //   child: const Text('+'),
@@ -100,41 +130,6 @@ class _HomeState extends State<Home> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _projectWidget() {
-    return FutureBuilder<List<Money>>(
-      future: DBHelper.instance.getMoney(),
-      builder: (BuildContext context, AsyncSnapshot<List<Money>> snapshot) {
-        if (!snapshot.hasData) {
-          return const Center(
-            child: Text('loading'),
-          );
-        }
-        Future.delayed(Duration.zero, () async {
-          setState(() {
-            moneys = snapshot.data!.toList();
-          });
-        });
-
-        return ListView.builder(
-          shrinkWrap: true,
-          itemCount: moneys.length,
-          itemBuilder: (BuildContext context, int index) {
-            return ListTile(
-              title: Column(
-                children: [
-                  Text(moneys[index].tag),
-                  Text(moneys[index].amount.toString()),
-                  Text(moneys[index].date.toString()),
-                  Text(moneys[index].type.toString()),
-                ],
-              ),
-            );
-          },
-        );
-      },
     );
   }
 }

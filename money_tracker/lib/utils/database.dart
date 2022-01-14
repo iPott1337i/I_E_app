@@ -89,7 +89,8 @@ class DBHelper {
 
   Future<List<Money>> getMoney() async {
     Database db = await instance.database;
-    List<Map> list = await db.rawQuery('SELECT * FROM bank ORDER BY id ASC');
+    List<Map> list = await db.rawQuery('SELECT * FROM bank ORDER BY date DESC');
+    //WHERE date >= "2022-01-01" AND date <= "2022-01-31"
     List<Money> moneys = [];
     for (var element in list) {
       moneys.add(
@@ -103,5 +104,24 @@ class DBHelper {
       );
     }
     return moneys;
+  }
+
+  Future<String> getExpenses() async {
+    Database db = await instance.database;
+    List<Map<String, Object?>> expenses = await db.rawQuery(
+        'SELECT SUM(amount) AS "exp" FROM bank  WHERE type = "0" AND date >= "2022-01-01" AND date <= "2022-01-31"');
+    return expenses[0]["exp"].toString();
+  }
+
+  Future<String> getIncomes() async {
+    Database db = await instance.database;
+    List<Map<String, Object?>> incomes = await db.rawQuery(
+        'SELECT SUM(amount) AS "inc" FROM bank  WHERE type = "1" AND date >= "2022-01-01" AND date <= "2022-01-31"');
+    return incomes[0]["inc"].toString();
+  }
+
+  Future deleteMoney(int id) async {
+    Database db = await instance.database;
+    db.rawDelete('DELETE FROM bank WHERE id = ?', [id]);
   }
 }
