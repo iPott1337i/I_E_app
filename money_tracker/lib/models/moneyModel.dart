@@ -4,7 +4,7 @@ class Money {
   late final int? id;
   int type; //Expense = 0, Income = 1
   double amount;
-  DateTime date;
+  String date;
   String tag;
 
   Money(

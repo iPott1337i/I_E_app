@@ -1,6 +1,15 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:money_tracker/models/moneyModel.dart';
+import 'package:money_tracker/utils/colors.dart';
+import 'package:money_tracker/utils/customAppBar.dart';
 import 'package:money_tracker/utils/database.dart';
+import 'package:money_tracker/utils/money.dart';
+import 'package:money_tracker/utils/themedata.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'addMoney.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,16 +23,20 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        // scaffoldBackgroundColor: Palette.darkTurquoise,
+        // backgroundColor: Palette.darkTurquoise,
         primarySwatch: Colors.blue,
+        textTheme: tTheme,
       ),
-      home: Home(),
+      home: const Home(),
     );
   }
 }
 
 class Home extends StatefulWidget {
-  Home({Key? key}) : super(key: key);
+  const Home({Key? key}) : super(key: key);
 
   @override
   _HomeState createState() => _HomeState();
@@ -31,18 +44,61 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   List<Money> moneys = [];
+  List<String> currencies = [];
+  Map currencyMap = {};
+
+  @override
+  void initState() {
+    super.initState();
+    loadCurrencies();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SizedBox(
-        height: MediaQuery.of(context).size.height,
-        child: ListView(
-          shrinkWrap: true,
-          children: [
-            _projectWidget(),
-          ],
+      appBar: CustomAppBar(
+        "",
+        const SizedBox.shrink(),
+        IconButton(
+          onPressed: () => {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AddMoney(),
+              ),
+            ),
+          },
+          icon: const Icon(
+            Icons.add,
+            size: 30,
+            color: Colors.black,
+          ),
         ),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: Card(
+              elevation: 0,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: _projectWidget(),
+                  ),
+                  // FloatingActionButton(
+                  //   child: const Text('+'),
+                  //   onPressed: () {
+                  //     Navigator.push(
+                  //       context,
+                  //       MaterialPageRoute(builder: (context) => AddMoney()),
+                  //     );
+                  //   },
+                  // ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
